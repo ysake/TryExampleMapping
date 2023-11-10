@@ -7,7 +7,7 @@ import unittest
 class TodoListModel:
     def __init__(self):
         self.items = []
-        self.selectedItemIndex = None
+        self.selectedItemIndices = []  # 複数選択用のリスト
         self.add_button_enabled = False
 
     def enter_text(self, text):
@@ -16,20 +16,23 @@ class TodoListModel:
     def add_item(self, item_name):
         if self.add_button_enabled:
             self.items.append(item_name)
-            self.add_button_enabled = False  # Reset the button state
+            self.add_button_enabled = False
 
     def select(self, selected_item_name):
         try:
-            self.selectedItemIndex = self.items.index(selected_item_name)
+            index = self.items.index(selected_item_name)
+            if index in self.selectedItemIndices:
+                self.selectedItemIndices.remove(index)
+            else:
+                self.selectedItemIndices.append(index)
         except ValueError:
-            self.selectedItemIndex = None
-    
+            pass
+
     def push_trash_button(self):
-        if self.selectedItemIndex is not None and self.selectedItemIndex < len(self.items):
-            self.items.pop(self.selectedItemIndex)
-            self.selectedItemIndex = None
-
-
+        for index in sorted(self.selectedItemIndices, reverse=True):
+            if index < len(self.items):
+                self.items.pop(index)
+        self.selectedItemIndices = []
 
 # Story: TODOリストにタスクを追加する
 
@@ -70,6 +73,16 @@ class Rule_ゴミ箱ボタンを押下すると選択されたタスクが削除
         self.assertNotIn('Task2', model.items)
 
 # - タスクが3つ存在する場合タスクを3つ選んでゴミ箱ボタンを押下するとタスクが全て消える
+class Rule_複数のタスクを選択しゴミ箱を押下すると複数のタスクが削除される(unittest.TestCase):
+    def test_タスク1から3を選択しゴミ箱ボタンを押下_タスク1から3が削除される(self):
+        model = TodoListModel()
+        model.items = ['Task1', 'Task2', 'Task3']
+        model.select('Task1')
+        model.select('Task2')        
+        model.select('Task3')
+        model.push_trash_button()
+        self.assertEqual(len(model.items), 0)
+
 # - タスクが選択されていない時はゴミ箱ボタンは非活性になる
 # - 連打しても変な挙動にならない
 # 　- タスク削除後にゴミ箱ボタンが非活性化すること
