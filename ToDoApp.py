@@ -4,8 +4,6 @@ import unittest
 
 # Model for a simple TODO list application
 
-# 何とかして
-
 class TodoListModel:
     def __init__(self):
         self.items = []
@@ -21,33 +19,26 @@ class TodoListModel:
             self.items.append(item_name)
             self.add_button_enabled = False
 
-    def select(self, selected_item_name):
+    def toggle_selection(self, item_name):
         try:
-            index = self.items.index(selected_item_name)
+            index = self.items.index(item_name)
             if index in self.selectedItemIndices:
                 self.selectedItemIndices.remove(index)
             else:
                 self.selectedItemIndices.append(index)
-            if len(self.selectedItemIndices) > 0:
-                self.trush_button_enabled = True
+            self.update_trush_button_state()
         except ValueError:
             pass
-    
-    def unselect(self, selected_item_name):
-        try:
-            index = self.items.index(selected_item_name)
-            if index in self.selectedItemIndices:
-                self.selectedItemIndices.remove(index)
-                if len(self.selectedItemIndices) == 0:
-                    self.trush_button_enabled = False
-        except ValueError:
-            pass
+
+    def update_trush_button_state(self):
+        self.trush_button_enabled = len(self.selectedItemIndices) > 0
 
     def push_trash_button(self):
         for index in sorted(self.selectedItemIndices, reverse=True):
             if index < len(self.items):
                 self.items.pop(index)
         self.selectedItemIndices = []
+
 
 # Story: TODOリストにタスクを追加する
 
@@ -83,7 +74,7 @@ class Rule_ゴミ箱ボタンを押下すると選択されたタスクが削除
     def test_タスク2を選択しゴミ箱ボタンを押下_タスク2が削除される_タスク1と3は残る(self):
         model = TodoListModel()
         model.items = ['Task1', 'Task2', 'Task3']
-        model.select('Task2')
+        model.toggle_selection('Task2')
         model.push_trash_button()
         self.assertNotIn('Task2', model.items)
         self.assertIn('Task1', model.items)
@@ -94,9 +85,9 @@ class Rule_複数のタスクを選択しゴミ箱を押下すると複数のタ
     def test_タスク1から3を選択しゴミ箱ボタンを押下_タスク1から3が削除される(self):
         model = TodoListModel()
         model.items = ['Task1', 'Task2', 'Task3']
-        model.select('Task1')
-        model.select('Task2')        
-        model.select('Task3')
+        model.toggle_selection('Task1')
+        model.toggle_selection('Task2')        
+        model.toggle_selection('Task3')
         model.push_trash_button()
         self.assertEqual(len(model.items), 0)
 
@@ -110,7 +101,7 @@ class Rule_タスクが選択されていない時はゴミ箱ボタンは非活
     def test_タスク1が選択されている_ゴミ箱ボタンが活性である(self):
         model = TodoListModel()
         model.items = ['Task1', 'Task2', 'Task3']
-        model.select('Task1')
+        model.toggle_selection('Task1')
         self.assertTrue(model.trush_button_enabled)
 
 # - 全てのチェックボックスが未選択の場合はゴミ箱ボタンが非活性になる
@@ -118,8 +109,8 @@ class Rule_全てのチェックボックスが未選択の場合はゴミ箱ボ
     def test_タスク1を選択後_選択を外した時_ゴミ箱ボタンは非活性である(self):
         model = TodoListModel()
         model.items = ['Task1', 'Task2', 'Task3']
-        model.select('Task1')
-        model.unselect('Task1')
+        model.toggle_selection('Task1')
+        model.toggle_selection('Task1')
         self.assertFalse(model.trush_button_enabled)
 
 # - 連打しても変な挙動にならない
