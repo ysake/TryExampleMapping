@@ -4,6 +4,8 @@ import unittest
 
 # Model for a simple TODO list application
 
+# 何とかして
+
 class TodoListModel:
     def __init__(self):
         self.items = []
@@ -28,6 +30,16 @@ class TodoListModel:
                 self.selectedItemIndices.append(index)
             if len(self.selectedItemIndices) > 0:
                 self.trush_button_enabled = True
+        except ValueError:
+            pass
+    
+    def unselect(self, selected_item_name):
+        try:
+            index = self.items.index(selected_item_name)
+            if index in self.selectedItemIndices:
+                self.selectedItemIndices.remove(index)
+                if len(self.selectedItemIndices) == 0:
+                    self.trush_button_enabled = False
         except ValueError:
             pass
 
@@ -101,11 +113,18 @@ class Rule_タスクが選択されていない時はゴミ箱ボタンは非活
         model.select('Task1')
         self.assertTrue(model.trush_button_enabled)
 
+# - 全てのチェックボックスが未選択の場合はゴミ箱ボタンが非活性になる
+class Rule_全てのチェックボックスが未選択の場合はゴミ箱ボタンが非活性になる(unittest.TestCase):
+    def test_タスク1を選択後_選択を外した時_ゴミ箱ボタンは非活性である(self):
+        model = TodoListModel()
+        model.items = ['Task1', 'Task2', 'Task3']
+        model.select('Task1')
+        model.unselect('Task1')
+        self.assertFalse(model.trush_button_enabled)
+
 # - 連打しても変な挙動にならない
 # 　- タスク削除後にゴミ箱ボタンが非活性化すること
 #   - タスク削除後にいずれのラジオボタンも選択されていないこと
-# - 全てのチェックボックスが未選択の場合はゴミ箱ボタンが非活性になる
-
 # - タスクは何個まで？
 
 # Story: 削除したタスクを復元できる
