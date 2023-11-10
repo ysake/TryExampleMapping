@@ -68,12 +68,14 @@ class Rule_テキストフィールドに入力されたテキストがタスク
 
 # - ゴミ箱ボタンを押下すると選択されたタスクが削除される
 class Rule_ゴミ箱ボタンを押下すると選択されたタスクが削除される(unittest.TestCase):
-    def test_タスク2を選択しゴミ箱ボタンを押下_タスク2が削除される(self):
+    def test_タスク2を選択しゴミ箱ボタンを押下_タスク2が削除される_タスク1と3は残る(self):
         model = TodoListModel()
         model.items = ['Task1', 'Task2', 'Task3']
         model.select('Task2')
         model.push_trash_button()
         self.assertNotIn('Task2', model.items)
+        self.assertIn('Task1', model.items)
+        self.assertIn('Task3', model.items)
 
 # - タスクが3つ存在する場合タスクを3つ選んでゴミ箱ボタンを押下するとタスクが全て消える
 class Rule_複数のタスクを選択しゴミ箱を押下すると複数のタスクが削除される(unittest.TestCase):
@@ -102,9 +104,6 @@ class Rule_タスクが選択されていない時はゴミ箱ボタンは非活
 # - 連打しても変な挙動にならない
 # 　- タスク削除後にゴミ箱ボタンが非活性化すること
 #   - タスク削除後にいずれのラジオボタンも選択されていないこと
-# - タスク2を選択しゴミ箱を押す
-#   - タスク2が削除される
-#   - タスク1とタスク3は残る
 # - 全てのチェックボックスが未選択の場合はゴミ箱ボタンが非活性になる
 
 # - タスクは何個まで？
