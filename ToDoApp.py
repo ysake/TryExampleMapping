@@ -9,6 +9,7 @@ class TodoListModel:
         self.items = []
         self.selectedItemIndices = []  # 複数選択用のリスト
         self.add_button_enabled = False
+        self.trush_button_enabled = False
 
     def enter_text(self, text):
         self.add_button_enabled = bool(text)
@@ -25,6 +26,8 @@ class TodoListModel:
                 self.selectedItemIndices.remove(index)
             else:
                 self.selectedItemIndices.append(index)
+            if len(self.selectedItemIndices) > 0:
+                self.trush_button_enabled = True
         except ValueError:
             pass
 
@@ -84,12 +87,25 @@ class Rule_複数のタスクを選択しゴミ箱を押下すると複数のタ
         self.assertEqual(len(model.items), 0)
 
 # - タスクが選択されていない時はゴミ箱ボタンは非活性になる
+class Rule_タスクが選択されていない時はゴミ箱ボタンは非活性になる(unittest.TestCase):
+    def test_タスク1から3の何も選択されていない_ゴミ箱ボタンが非活性である(self):
+        model = TodoListModel()
+        model.items = ['Task1', 'Task2', 'Task3']
+        self.assertFalse(model.trush_button_enabled)
+
+    def test_タスク1が選択されている_ゴミ箱ボタンが活性である(self):
+        model = TodoListModel()
+        model.items = ['Task1', 'Task2', 'Task3']
+        model.select('Task1')
+        self.assertTrue(model.trush_button_enabled)
+
 # - 連打しても変な挙動にならない
 # 　- タスク削除後にゴミ箱ボタンが非活性化すること
 #   - タスク削除後にいずれのラジオボタンも選択されていないこと
 # - タスク2を選択しゴミ箱を押す
 #   - タスク2が削除される
 #   - タスク1とタスク3は残る
+# - 全てのチェックボックスが未選択の場合はゴミ箱ボタンが非活性になる
 
 # - タスクは何個まで？
 
